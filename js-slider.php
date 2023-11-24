@@ -31,6 +31,8 @@ if (!class_exists('JS_Slider')) {
             add_action('admin_menu', [$this, 'add_admin_menu']);
             add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts'], 999);
 
+            require JS_SLIDER_PLUGIN_PATH . 'vendor/autoload.php';
+
             require_once JS_SLIDER_PLUGIN_PATH . 'post-types/class.js-slider-cpt.php';
             $js_slider_cpt = new JS_Slider_Post_Type();
 
