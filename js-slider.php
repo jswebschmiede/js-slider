@@ -132,9 +132,9 @@ if (!class_exists('JS_Slider')) {
 
         public function enqueue_scripts(): void
         {
-            wp_register_style('js-slider-swiper', JS_SLIDER_PLUGIN_URL . 'vendor/swiper/css/swiper-bundle.css', [], JS_SLIDER_VERSION);
-            wp_register_script('js-slider-swiper-bundle', JS_SLIDER_PLUGIN_URL . 'vendor/swiper/js/swiper-bundle.min.js', [], JS_SLIDER_VERSION, true);
-            wp_register_script('js-slider-swiper', JS_SLIDER_PLUGIN_URL . 'vendor/swiper/js/swiper.js', [], JS_SLIDER_VERSION, true);
+            wp_register_style('js-slider-swiper', JS_SLIDER_PLUGIN_URL . 'assets/vendor/swiper/css/swiper-bundle.css', [], JS_SLIDER_VERSION);
+            wp_register_script('js-slider-swiper-bundle', JS_SLIDER_PLUGIN_URL . 'assets/vendor/swiper/js/swiper-bundle.min.js', [], JS_SLIDER_VERSION, true);
+            wp_register_script('js-slider-swiper', JS_SLIDER_PLUGIN_URL . 'assets/vendor/swiper/js/swiper.js', [], JS_SLIDER_VERSION, true);
         }
 
         public static function activate(): void
