@@ -9,12 +9,17 @@ if (!class_exists('JS_Slider_Settings')) {
 
     class JS_Slider_Settings
     {
-        public static bool|array $options;
+        public static bool|array $options_slider;
+        public static bool|array $options_additional;
 
         public function __construct()
         {
-            self::$options = get_option('js_slider_options');
+            self::$options_slider = get_option('js_slider_options_slider');
+            self::$options_additional = get_option('js_slider_options_additional');
             add_action('admin_init', [$this, 'register_options']);
+
+            var_dump(self::$options_slider);
+            var_dump(self::$options_additional);
         }
 
         /**
@@ -27,14 +32,19 @@ if (!class_exists('JS_Slider_Settings')) {
          */
         public function register_options(): void
         {
+            // Register the settings.
             register_setting(
-                'js_slider_group',
-                'js_slider_options',
-                [
-                    'sanitize_callback' => [$this, 'sanitize_options']
-                ]
+                'js_slider_group_1',
+                'js_slider_options_slider',
+                [$this, 'sanitize_options']
+            );
+            register_setting(
+                'js_slider_group_2',
+                'js_slider_options_additional',
+                [$this, 'sanitize_options']
             );
 
+            // Register the settings sections.
             add_settings_section(
                 'js_slider_main_section',
                 __('How does it work?', 'js-slider'),
@@ -44,9 +54,16 @@ if (!class_exists('JS_Slider_Settings')) {
 
             add_settings_section(
                 'js_slider_second_section',
-                __('Plugin Options', 'js-slider'),
+                __('Slider Options', 'js-slider'),
                 null,
                 'js_slider_page2'
+            );
+
+            add_settings_section(
+                'js_slider_second_section',
+                __('Plugin Options', 'js-slider'),
+                null,
+                'js_slider_page3'
             );
 
             /**
@@ -96,11 +113,14 @@ if (!class_exists('JS_Slider_Settings')) {
                 ]
             );
 
+            /**
+             * Third section fields, page 3.
+             */
             add_settings_field(
                 'js_slider_styles',
                 __('Slider Style', 'js-slider'),
                 [$this, 'js_slider_styles_cb'],
-                'js_slider_page2',
+                'js_slider_page3',
                 'js_slider_second_section',
                 [
                     'options' => [
@@ -129,8 +149,8 @@ if (!class_exists('JS_Slider_Settings')) {
          */
         public function js_slider_title_cb($args): void
         {
-            $js_slider_title = self::$options['js_slider_title'];
-            echo '<input type="text" name="js_slider_options[js_slider_title]" id="js_slider_title" value="' . esc_attr($js_slider_title) . '" />';
+            $js_slider_title = self::$options_slider['js_slider_title'] ?? '';
+            echo '<input type="text" name="js_slider_options_slider[js_slider_title]" id="js_slider_title" value="' . esc_attr($js_slider_title) . '" />';
         }
 
         /**
@@ -140,8 +160,8 @@ if (!class_exists('JS_Slider_Settings')) {
          */
         public function js_slider_bullets_cb($args): void
         {
-            $js_slider_bullets = self::$options['js_slider_bullets'] ?? 0;
-            echo '<input type="checkbox" name="js_slider_options[js_slider_bullets]" id="js_slider_bullets" value="1" ' . checked(1, $js_slider_bullets, false) . ' />';
+            $js_slider_bullets = self::$options_slider['js_slider_bullets'] ?? 0;
+            echo '<input type="checkbox" name="js_slider_options_slider[js_slider_bullets]" id="js_slider_bullets" value="1" ' . checked(1, $js_slider_bullets, false) . ' />';
         }
 
         /**
@@ -151,8 +171,8 @@ if (!class_exists('JS_Slider_Settings')) {
          */
         public function js_slider_arrows_cb($args): void
         {
-            $js_slider_arrows = self::$options['js_slider_arrows'] ?? 0;
-            echo '<input type="checkbox" name="js_slider_options[js_slider_arrows]" id="js_slider_arrows" value="1" ' . checked(1, $js_slider_arrows, false) . ' />';
+            $js_slider_arrows = self::$options_slider['js_slider_arrows'] ?? 0;
+            echo '<input type="checkbox" name="js_slider_options_slider[js_slider_arrows]" id="js_slider_arrows" value="1" ' . checked(1, $js_slider_arrows, false) . ' />';
         }
 
         /**
@@ -162,9 +182,9 @@ if (!class_exists('JS_Slider_Settings')) {
          */
         public function js_slider_styles_cb($args): void
         {
-            $js_slider_styles = self::$options['js_slider_styles'];
+            $js_slider_styles = self::$options_additional['js_slider_styles'] ?? 'style-1';
 
-            echo '<select name="js_slider_options[js_slider_styles]" id="js_slider_styles">';
+            echo '<select name="js_slider_options_additional[js_slider_styles]" id="js_slider_styles">';
             foreach ($args['options'] as $value => $label) {
                 echo '<option value="' . esc_attr($value) . '" ' . selected($value, $js_slider_styles, false) . '>' . esc_html($label) . '</option>';
             }
@@ -183,20 +203,14 @@ if (!class_exists('JS_Slider_Settings')) {
             foreach ($input as $key => $value) {
                 switch ($key) {
                     case 'js_slider_title':
-                        if (empty(trim($value))) {
-                            add_settings_error(
-                                'js_slider_options',
-                                'js_slider_title_error',
-                                __('The title field cannot be empty.', 'js-slider'),
-                                'error'
-                            );
-                            $value = __('Please add a title', 'js-slider');
-                        }
                         $new_input[$key] = sanitize_text_field($value);
                         break;
                     case 'js_slider_bullets':
                     case 'js_slider_arrows':
                         $new_input[$key] = absint($value);
+                        break;
+                    case 'js_slider_styles':
+                        $new_input[$key] = sanitize_key($value);
                         break;
                     default:
                         $new_input[$key] = sanitize_text_field($value);
