@@ -17,9 +17,6 @@ if (!class_exists('JS_Slider_Settings')) {
             self::$options_slider = get_option('js_slider_options_slider');
             self::$options_additional = get_option('js_slider_options_additional');
             add_action('admin_init', [$this, 'register_options']);
-
-            var_dump(self::$options_slider);
-            var_dump(self::$options_additional);
         }
 
         /**
